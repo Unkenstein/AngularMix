@@ -1,0 +1,14 @@
+<input [(ngModel)]="element[col.key]
+<div class="h3">{{ widget.title }}</div>
+<mat-form-field>
+    <mat-select class="simplified" [(ngModel)]="widget6.currentRange"
+                aria-label="Change range">
+        <mat-option *ngFor="let range of widgets.widget6.ranges | keys"
+                    [value]="range.key">
+            {{range.value}}
+        </mat-option>
+    </mat-select>
+</mat-form-field>
+<button mat-icon-button (click)="getUserPermissionByUserId(dataItem.IdUser)">
+  <mat-icon>portrait</mat-icon>
+</button>
