@@ -1,0 +1,598 @@
+Angular
+Angular uses TypeScript
+Typescript is basically the superset of Javascript which gives (Classes, Interfaces, Types etc.). It is strongly typed language. It cannot be run in the browser, it gets compiled to javascript.
+
+Module Introduction:
+Angular serves the index.html page as the single page for the project
+
+     <!doctype html>
+     <html lang="en">
+          <head>
+               <meta charset="utf-8">
+               <title>MyFirstApp</title>
+               <base href="/">
+               <meta name="viewport" content="width=device-width, initial-scale=1">
+               <link rel="icon" type="image/x-icon" href="favicon.ico">
+          </head>
+          <body>
+               <app-root>Loading...</app-root>
+          </body>
+     </html>
+this index.html loads a component named <app-root>, this is by default made by the project, we can make our own component also similar to this.
+
+// app.conponent.ts file
+
+     import { Component } from '@angular/core';
+
+     @Component({
+          selector: 'app-root',
+          templateUrl: './app.component.html',
+          styleUrls: ['./app.component.css']
+     })
+     export class AppComponent {
+          title = 'Application New App';
+          name = 'Rahul';
+     }
+now we can see the value of the selector in the above snippt is "app-root" which is same as the component added in the index.html file. So what happens is the angular finds the component which has the same name in the selector and replaces its logic and html look in the index.html.
+
+Component
+Creating a new component
+each component should have a folder.
+
+and folder name should be same as component name
+
+// Telling angular that it is not just a typescript class but also a component
+// We do this by adding a special decorator 
+// This component decorator is not something typescript know so we need to import it.
+
+import { Component } from '@angular/core';
+
+// passing js object in the component to configure it.
+@Component({
+      selector : 'app-server',     // to use this componnent in the other components
+      templateUrl : './server.component.html'
+})
+
+// export class because we want to use it outside to other component
+export class ServerComponent {}
+Registering Component
+For letting know that the server-component exists we need to tell the app about it.
+
+we do this by mentioning it in the app.module.ts file
+
+Before adding component to the app.module.ts
+
+import { BrowserModule } from '@angular/platform-browser';
+import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+
+import { AppComponent } from './app.component';
+
+@NgModule({
+  declarations: [
+    AppComponent
+  ],
+  imports: [
+    BrowserModule,
+    FormsModule
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+After adding new component to the app.module.ts
+
+import { BrowserModule } from '@angular/platform-browser';
+import { NgModule } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+
+import { AppComponent } from './app.component';
+import { ServerComponent } from './server/server.component'
+
+@NgModule({
+  declarations: [
+    AppComponent,
+    ServerComponent
+  ],
+  imports: [
+    BrowserModule,
+    FormsModule
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+Creating a new component through CLI automatically
+     ng generate component servers
+Shortcut for the above command
+
+     ng g c servers
+Makes a folder under the app folder and makes 4 files under that (html, css, ts, and spec.ts)
+
+Output of the above command
+
+     ➜  my-first-app git:(master) ✗ ng generate component servers   
+     CREATE src/app/servers/servers.component.css (0 bytes)
+     CREATE src/app/servers/servers.component.html (22 bytes)
+     CREATE src/app/servers/servers.component.spec.ts (635 bytes)
+     CREATE src/app/servers/servers.component.ts (279 bytes)
+     UPDATE src/app/app.module.ts (544 bytes)
+Databinding
+Databinding = Communication
+
+String Interpolation {{ }}
+Anything between the double curly braces has somehow has to return a string or something which can be converted into a string.
+
+we can give a variable {{ name }}
+a string expression {{ 'Hello there! }}
+a function which will return a string {{ getName() }}
+a ternary operator {{ name == 'Rahul' ? 'Pandey' : 'Noone' }}
+Property Binding []
+We can directly bind the property of HTML to a variable of our component.
+
+     <button class="btn-primary btn" disabled>Add New Server</button>
+Right now the button is disabled permanently.
+
+We require to make it dynamic and thus to make the disabled attribute of the html button tag to bind to out variable.
+
+This can be done as follows :
+
+     <button class="btn-primary btn" [disabled]="!allowNewServer">
+          Add New Server
+     </button>
+Component file that make changes in the allowNewServer variable dynamically.
+
+import { Component, OnInit } from '@angular/core';
+
+@Component({
+  selector: 'app-servers',
+  templateUrl: './servers.component.html',
+  styleUrls: ['./servers.component.css']
+})
+export class ServersComponent implements OnInit {
+
+  allowNewServer : boolean = false;
+  //after 3 seconds the server adding will be allowed
+  constructor() { 
+    setTimeout(() => {
+      this.allowNewServer = true;
+    }, 3000);
+  }
+
+  ngOnInit(): void {
+  }
+
+}
+Event Binding ()
+We can bind events of every html elements Example we can bind click event of a button, input event of an input
+
+ <input type="text" (input)="onUpdateText($event)">
+ <p>{{textInputValue}}</p>     
+we can also pass $event value which stores many information about the event being done, and then use that information in our code.
+
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {
+
+  textInputValue : string;
+
+  onUpdateText(event) : void {
+    this.textInputValue = event.target.value;
+  }
+
+}
+Two way binding [()]
+Binding in both directions, means change in the html will reflect in the typescript code and also change in the typescript code will reflect in the html.
+
+<input type="text" [(ngModel)]="inputText">
+<p>{{inputText}}</p>
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+
+export class AppComponent {
+  inputText = 'Initial Input Text';
+}
+Directives
+Directives are the instructions to the DOM. Components are directives, they are the directives with a template.
+
+When we add a selector to the html template we are instaddructing angular to add the content of our component template at the place where we used our selector.
+
+Selector of a directive is same as selector of a component.
+
+Build-In Directives
+ngIf directive
+Syntax *ngIf=""
+
+* is required because ngIf is a structural directive, which changes the structure of the DOM
+
+ngClass directive
+Syntax ngClass="{<name of the css class> : <condition returning true or false>}"
+
+     <div [ngClass]="{'class-1' : condition1(), 'class-2' : condition2()}">
+ngStyle
+     <div [ngStyle]="{'background-color': style1 ? 'red' : (style2 ? 'blue' : null) }">
+ngFor
+Syntax *ngFor=""
+
+* is required as it is a structural directive, which changes the structure of the DOM.
+
+  <ul 
+    <li>
+      *ngfor="let number of evenNumbers"
+      {{ number }}
+    </li>
+  </ul> 
+Routing
+Where should we register our routes ?
+
+in app.module.ts
+
+  import { Routes, RouterModule } from '@angular/router';
+
+  import { AppComponent } from './app.component';
+  import { UserBasicInfoComponent } from './home/search-result/user-basic-info/user-basic-info.component';
+  import { RepoPopupComponent } from './home/search-result/repo-popup/repo-popup.component';
+  import { UserPopularReposComponent } from './home/search-result/user-popular-repos/user-popular-repos.component';
+
+  const appRoutes: Routes = [
+    { path: '', component: HomeComponent},
+    { path : 'repoPopup/:repoName' , component: RepoPopupComponent },
+    { path : 'users' , component: UserBasicInfoComponent },
+    { path : 'repoPopular' , component: UserPopularReposComponent}
+  ]
+
+  @NgModule({
+  declarations: [
+      AppComponent,
+      HomeComponent,
+      UserBasicInfoComponent,
+      UserPopularReposComponent,
+      RepoPopupComponent
+    ],
+    imports: [
+      BrowserModule,
+      RouterModule.forRoot(appRoutes) // this import is required
+    ],
+    providers: [],
+    bootstrap: [AppComponent]
+  })
+  export class AppModule { }
+in app.component.html
+
+  <router-outlet></router-outlet>
+  <!-- This will automatically loads the root route (localhost:4200/) in this page and here root is pointing to home component -->
+Calling a Route
+Calling a route from template
+
+  <div>
+    <a
+      [routerLink]="['/servers', 5, 'edit']"
+      [queryParams]="{allowEdit : '1'}"
+      [fragment]="'loading'"
+
+      <!-- calling a route : localhost:4200/servers/5/edit?allowEdit=1#loading -->
+
+      *ngFor="let server of servers"
+      {{ server.name }}
+    >
+  </div>
+Calling a route programitically
+
+  import { Component, OnInit } from '@angular/core';
+  import { Router } from '@angular/router';
+  
+  @Component({
+    selector: 'app-servers',
+    templateUrl: './servers.component.html',
+    styleUrls: ['./servers.component.css']
+  })
+
+  export class RepoPopupComponent implements OnInit {
+    constructor( private route : Router ) { }
+
+    ngOnInit(): void {}
+
+    onLoadServer(id : number){
+      this.router.navigate(['servers', id, 'edit'], {queryParams: {allowEdit:'1'}, fragment:'loading'});
+      // localhost:4200/servers/5/edit?allowEdit=1#loading
+    }
+  }
+Retrieving Parameters, Query Parameters and Fragments
+  import { Component, OnInit} from '@angular/core';
+  import { ActivatedRoute } from '@angular/router'; 
+  
+  @Component({
+    selector: 'app-servers',
+    templateUrl: './servers.component.html',
+    styleUrls: ['./servers.component.css']
+  })
+
+  export class RepoPopupComponent implements OnInit {
+    allowEdit : String;
+    constructor( private route : ActivatedRoute ) { }
+
+    ngOnInit(): void {
+      // retrieve parameters and fragments here
+
+      // method 1
+       console.log(this.route.snapshot.queryParams);
+       console.log(this.route.snapshot.fragment); 
+
+      // method 2
+      // this method is to be used when we want to hit the same route standing on the same route
+        this.route.queryParams.subscribe();
+        this.route.fragment.subscribe();
+
+      // Example
+      this.route.queryParams
+      .subscribe(
+        (params : Params) => {
+          this.allowEdit = params['allowEdit'];
+        }
+      );
+
+    }
+
+    onLoadServer(id : number){
+      this.router.navigate(['servers', id, 'edit'], {queryParams: {allowEdit:'1'}, fragment:'loading'});
+      // localhost:4200/servers/5/edit?allowEdit=1#loading
+    }
+  }
+Setting up child (nested) Routes
+  const appRoutes: Routes = [
+    { path: '', component: HomeComponent},
+    { path : 'repoPopup/:repoName' , component: RepoPopupComponent },
+    { path : 'users' , component: UserBasicInfoComponent },
+    { path : 'repoPopular' , component: UserPopularReposComponent},
+
+    // now for using the child routes we need to add <router-outlet> to the the Search-Result-Component because all the children routes get to be loaded there.
+    { path : 'report', component: SearchResultComponent, children : [
+      {path: 'basicInfo', component : UserBasicInfoComponent},
+      {path: 'popularRepos', component : UserPopularReposComponent},
+      {path: 'familiarLanguages', component: UserFamiliarLanguagesComponent}
+    ]}
+  ]
+Redirecting or Wildcard Routes
+  import { BrowserModule } from '@angular/platform-browser';
+  import { NgModule } from '@angular/core';
+  import { Routes, RouterModule } from '@angular/router';
+
+  import { AppComponent } from './app.component';
+  import { HomeComponent } from './home/home.component';
+  import { UserBasicInfoComponent } from './home/search-result/user-basic-info/user-basic-info.component';
+  import { UserPopularReposComponent } from './home/search-result/user-popular-repos/user-popular-repos.component';
+  import { RepoPopupComponent } from './home/search-result/repo-popup/repo-popup.component';
+  import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+
+
+  const appRoutes: Routes = [
+    { path: '', component: HomeComponent},
+    { path : 'repoPopup/:repoName' , component: RepoPopupComponent },
+    { path : 'users' , component: UserBasicInfoComponent },
+    { path : 'repoPopular' , component: UserPopularReposComponent},
+    // page not found component
+    { path : 'not-found', component : PageNotFoundComponent},   
+    { path: '**', redirectTo: '/not-found'} // redirecting all the other routes to not found component using wildcard route
+                                            // this wildcard route should be at the end.
+  ]
+
+
+  @NgModule({
+    declarations: [
+      AppComponent,
+      HomeComponent,
+      UserBasicInfoComponent,
+      UserPopularReposComponent,
+      RepoPopupComponent,
+      PageNotFoundComponent
+    ],
+    imports: [
+      BrowserModule,
+      RouterModule.forRoot(appRoutes)
+    ],
+    providers: [],
+    bootstrap: [AppComponent]
+  })
+  export class AppModule { }
+Best Practice for Routing
+Try to keep the routes to a separate file (app-routing.module.ts) not in the app.module.ts file
+
+make a new file app-routing.module.ts and write all the routing there
+export the RouterModule from this file
+import the routing in the app.module.ts file.
+  import { NgModule } from '@angular/core';
+  import { Routes, RouterModule } from '@angular/router';
+
+  import { HomeComponent } from './home/home.component';
+  import { UserBasicInfoComponent } from './home/search-result/user-basic-info/user-basic-info.component';
+  import { UserPopularReposComponent } from './home/search-result/user-popular-repos/user-popular-repos.component';
+  import { RepoPopupComponent } from './home/search-result/repo-popup/repo-popup.component';
+  import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+  import { AuthGuard } from './auth-guard.service'
+
+  const appRoutes: Routes = [
+      { path: '', component: HomeComponent},
+      { path: 'repoPopup', canActivate: [AuthGuard ], component: RepoPopupComponent},
+      { path : 'repoPopup/:repoName' , component: RepoPopupComponent },
+      { path : 'users' , component: UserBasicInfoComponent },
+      { path : 'repoPopular' , component: UserPopularReposComponent},
+      { path : 'not-found', component : PageNotFoundComponent},
+      { path: '**', redirectTo: '/not-found'}
+    ]
+
+  @NgModule({
+      imports : [
+            RouterModule.forRoot(appRoutes)
+      ],
+      exports : [RouterModule]  // Export the RouterModule so that other files can import
+  })
+
+  export class AppRoutingModule {
+  }
+Importing RouterModule in the app.module.ts
+
+import { BrowserModule } from '@angular/platform-browser';
+import { NgModule } from '@angular/core';
+
+import { AppComponent } from './app.component';
+import { HeaderComponent } from './header/header.component';
+import { HomeComponent } from './home/home.component';
+import { SearchComponent } from './home/search/search.component';
+import { SearchResultComponent } from './home/search-result/search-result.component';
+import { FooterComponent } from './footer/footer.component';
+import { UserBasicInfoComponent } from './home/search-result/user-basic-info/user-basic-info.component';
+import { UserPopularReposComponent } from './home/search-result/user-popular-repos/user-popular-repos.component';
+import { UserFamiliarLanguagesComponent } from './home/search-result/user-familiar-languages/user-familiar-languages.component';
+import { RepoPopupComponent } from './home/search-result/repo-popup/repo-popup.component';
+import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+import { AppRoutingModule } from './app-routing.module';  // import the exports provided by app-routing.module
+
+@NgModule({
+  declarations: [
+    AppComponent,
+    HeaderComponent,
+    HomeComponent,
+    SearchComponent,
+    SearchResultComponent,
+    FooterComponent,
+    UserBasicInfoComponent,
+    UserPopularReposComponent,
+    UserFamiliarLanguagesComponent,
+    RepoPopupComponent,
+    PageNotFoundComponent
+  ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule  // writing into import section to import it into this file.
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+Route Guard
+Functionality, Logic, Code which is executed before a route is loaded or once you want to leave a route.
+
+make a new file auth-guard-service.ts
+  // CanActivate Interface provides canActivate function where we can code (check authentication) for the service we are using. before calling a route.
+
+  // In below example i am using a fakeAuthService which will authenticate the route we want to go to.
+
+  import { CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Router } from '@angular/router';
+  import { Observable } from 'rxjs';
+  import { Injectable } from '@angular/core';
+  import { FakeAuthService } from "./fake-auth.service";
+
+  @Injectable() 
+  export class AuthGuard implements CanActivate {
+
+      constructor(private fakeAuthService : FakeAuthService, private route: Router){}
+
+        canActivate( route : ActivatedRouteSnapshot, state : RouterStateSnapshot) : Observable<boolean> | Promise<boolean> | boolean{
+              return this.fakeAuthService.isAuthenticated()
+              .then( (authenticated: boolean) => {
+                if(authenticated)
+                      return true;
+                else 
+                      this.route.navigate(['/']);
+                      return false;
+              })
+        }
+
+        // this method is to guard the child routes of that route
+        canActivateChild( route : ActivatedRouteSnapshot, state : RouterStateSnapshot) : Observable<boolean> | Promise<boolean> | boolean{
+            return this.canActivate(route, state);
+        }
+  }
+make a new Fake Auth Service file (fake-auth-service.ts)
+  export class FakeAuthService {
+
+      // here in this fake auth service i am taking 800ms for the response to go back as the user is loggedin or not
+
+      loggedIn = false;
+
+      isAuthenticated() {
+            return new Promise (
+                (resolve, reject) => {
+                      setTimeout(() => {
+                          resolve(this.loggedIn);
+                      }, 800)
+                }
+            )
+      }
+
+      login() {
+            this.loggedIn = true;
+      }
+
+      logout() {
+            this.loggedIn = false;
+      }
+
+  }
+make changes in the app.module.ts file add providers for the angulalr to know that there is a AuthGuard exists
+import { BrowserModule } from '@angular/platform-browser';
+import { NgModule } from '@angular/core';
+
+import { AppComponent } from './app.component';
+
+@NgModule({
+  declarations: [
+    AppComponent,
+  ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule 
+  ],
+  providers: [AuthGuard, FakeAuthService],  // add providers
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+make changes in the app-routing.component.js
+  import { NgModule } from '@angular/core';
+  import { Routes, RouterModule } from '@angular/router';
+
+  import { HomeComponent } from './home/home.component';
+  import { UserBasicInfoComponent } from './home/search-result/user-basic-info/user-basic-info.component';
+  import { UserPopularReposComponent } from './home/search-result/user-popular-repos/user-popular-repos.component';
+  import { RepoPopupComponent } from './home/search-result/repo-popup/repo-popup.component';
+  import { PageNotFoundComponent } from './page-not-found/page-not-found.component';
+  import { AuthGuard } from './auth-guard.service'
+
+  const appRoutes: Routes = [
+      { path: '', component: HomeComponent},
+      // canActivate works as a guard for the route it is applied to
+      { path: 'repoPopup', canActivate: [AuthGuard ], component: RepoPopupComponent},
+      { path : 'repoPopup/:repoName' , component: RepoPopupComponent },
+      { path : 'users' , component: UserBasicInfoComponent },
+
+      // canActivateChild works on all the child routes
+      { path : 'report', canActivateChild: [AuthGuard], component: SearchResultComponent, children : [
+        {path: 'basicInfo', component : UserBasicInfoComponent},
+        {path: 'popularRepos', component : UserPopularReposComponent},
+        {path: 'familiarLanguages', component: UserFamiliarLanguagesComponent}
+      ]}
+      { path : 'repoPopular' , component: UserPopularReposComponent},
+      { path : 'not-found', component : PageNotFoundComponent},
+      { path: '**', redirectTo: '/not-found'}
+    ]
+
+  @NgModule({
+      imports : [
+            RouterModule.forRoot(appRoutes)
+      ],
+      exports : [RouterModule]
+  })
+
+  export class AppRoutingModule {
+
+  }
